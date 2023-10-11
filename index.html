@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>similar_document</title>
+</head>
+<body>
+    <h2>
+        유사한 문장 찾기
+    </h2>
+    <div>
+        <label>글 번호를 입력해주세요.</label><br>
+        <input id="docNo" type="text" onkeydown="inputDocNo(this)"></input>
+        <br><br>
+        <table id="resultTable" style="display: none;">
+            <tbody>
+                <tr>
+                    <td id="inputNo"></td>
+                    <td>
+                        글 내용
+                    </td>
+                    <td>
+                        ...
+                    </td>
+                </tr>
+                <!-- dynamically added -->
+                <!-- <tr>
+                    <td>
+                        글 번호
+                    <td>
+                        유사한 글1
+                    </td>
+                    <td>
+                        ...
+                    </td>
+                </tr> -->
+            </tbody>
+        </table>
+    </div>
+</body>
+
+<script>
+    function inputDocNo(element) {
+        if (event.key == 'Enter') {
+            // pass document number to api
+            document.getElementById('resultTable').style.display = 'block'
+
+            document.getElementById('inputNo').innerHTML = "#"+element.value
+
+            element.value = ""
+        }
+    }
+</script>
