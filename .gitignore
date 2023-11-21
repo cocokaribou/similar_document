@@ -1,0 +1,7 @@
+config.py
+.idea/*
+__pycache__/*
+.vscode/*
+*.save
+*.csv
+models/__pycache__/*

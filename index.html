@@ -1,55 +1,110 @@
 <!DOCTYPE html>
+<html lang="en">
+
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <title>similar_document</title>
+    <style>
+        label {
+            font-size: 15pt;
+            font-weight: bold;
+        }
+        #header * {
+            margin-right: 0.5em;
+        }
+        table {
+            border-collapse: collapse;
+            width: 80%;
+            color: #202020;
+            margin-left: 10pt;
+        }
+
+        th,
+        td {
+            text-align: left;
+            padding: 8px;
+        }
+
+        .number,
+        .author,
+        .date {
+            width: 10%
+        }
+
+        .title {
+            width: 70%
+        }
+
+        #refresh {
+            cursor: pointer;
+        }
+
+        #item :hover {
+            cursor: pointer;
+            font-weight: bold;
+            color:black;
+        }
+    </style>
 </head>
+
 <body>
-    <h2>
-        유사한 문장 찾기
-    </h2>
-    <div>
-        <label>글 번호를 입력해주세요.</label><br>
-        <input id="docNo" type="text" onkeydown="inputDocNo(this)"></input>
-        <br><br>
-        <table id="resultTable" style="display: none;">
-            <tbody>
-                <tr>
-                    <td id="inputNo"></td>
-                    <td>
-                        글 내용
-                    </td>
-                    <td>
-                        ...
-                    </td>
-                </tr>
-                <!-- dynamically added -->
-                <!-- <tr>
-                    <td>
-                        글 번호
-                    <td>
-                        유사한 글1
-                    </td>
-                    <td>
-                        ...
-                    </td>
-                </tr> -->
-            </tbody>
-        </table>
-    </div>
+    <p id="header">
+        <label>게시판</label>
+        <a id="refresh">🔄</a>
+        <input type="text" placeholder="글 검색"></input>
+    </p>
+    &nbsp;
+    <table id="mainTable">
+        <thead>
+            <tr></tr>
+        </thead>
+        <tbody>
+            <!-- dynamically added -->
+            <tr></tr>
+        </tbody>
+    </table>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // ajax alternative -> fetch
+            fetch('http://127.0.0.1:8000/main')
+                .then(response => response.json())
+                .then(data => draw_main(data))
+                .catch(error => console.error(error));
+
+            document.getElementById("refresh").addEventListener("click", function () {
+                window.location.href = "index.html"
+            })
+        });
+
+        function draw_main(data) {
+            var table = document.getElementById("mainTable").getElementsByTagName('tbody')[0];
+
+            data.forEach(function (it) {
+                var newRow = table.insertRow();
+                newRow.id = "item"
+                index = it["item_idx"]
+                newRow.addEventListener("click", function(){
+                    go_to_sub(index)
+                })
+
+                var cellTitle = newRow.insertCell(0);
+                var cellAuthor = newRow.insertCell(1);
+                var cellDate = newRow.insertCell(2);
+
+                cellTitle.innerHTML = it["title"];
+                cellAuthor.innerHTML = it["author"];
+                cellDate.innerHTML = it["created_at"];
+            })
+        }
+
+        function go_to_sub(index){
+            window.location.href="sub.html?index="+index
+        }
+    </script>
 </body>
 
-<script>
-    function inputDocNo(element) {
-        if (event.key == 'Enter') {
-            // pass document number to api
-            document.getElementById('resultTable').style.display = 'block'
-
-            document.getElementById('inputNo').innerHTML = "#"+element.value
-
-            element.value = ""
-        }
-    }
-</script>
+</html>

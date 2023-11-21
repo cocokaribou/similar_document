@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>similar_document</title>
+    
+    <style>
+        label {
+            font-size: 15pt;
+            font-weight: bold;
+            padding-right: 1em;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 80%;
+        }
+
+        th,
+        td {
+            text-align: left;
+            padding: 8px;
+        }
+
+        .number,
+        .author,
+        .date {
+            width: 10%
+        }
+
+        .title {
+            width: 70%
+        }
+
+        #refresh {
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <p>
+        <label>게시판</label><a id="refresh">🔄</a>
+    </p>
+    <table id="mainTable">
+        <thead>
+            <tr></tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="title">제목</td>
+                <td class="author">작성자</td>
+                <td class="date">날짜</td>
+            </tr>
+            <tr>
+                <td class="content">글내용</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var searchParams = new URLSearchParams(window.location.search);
+            var index = searchParams.get('index');
+
+            fetch('http://127.0.0.1:8000/sub?index=' + index)
+                .then(response => response.json())
+                .then(data => draw_sub(data))
+                .catch(error => console.error(error));
+
+            document.getElementById("refresh").addEventListener("click", function () {
+                window.location.href = "sub.html"
+            })
+        });
+
+        function draw_sub(data) {
+            var table = document.getElementById("mainTable").getElementsByTagName('tbody')[0];
+            console.log(data)
+            // data.forEach(function (it) {
+            //     var newRow = table.insertRow();
+            //     index = it["item_idx"]
+            //     newRow.addEventListener("click", function(){
+            //         go_to_sub(index)
+            //     })
+
+            //     var cellTitle = newRow.insertCell(0);
+            //     var cellAuthor = newRow.insertCell(1);
+            //     var cellDate = newRow.insertCell(2);
+
+            //     cellTitle.innerHTML = it["title"];
+            //     cellAuthor.innerHTML = it["author"];
+            //     cellDate.innerHTML = it["created_at"];
+            // })
+        }
+
+        function go_to_sub(index) {
+            window.location.href = "sub.html?index=" + index
+        }
+    </script>
+</body>
+
+</html>
