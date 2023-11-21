@@ -87,7 +87,7 @@ class EsModule:
             "from": start,
             "size": PAGING_OFFSET,
             "query": {
-                "match": {
+                "term": {
                     "contents": keyword
                 }
             },

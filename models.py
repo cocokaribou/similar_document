@@ -8,7 +8,6 @@ class Item(BaseModel):
     title: str = None
     contents: str = None
     replies: list[str] = []
-    similar_items: list['Item'] = []
 
 class SearchResult(BaseModel):
     total: int

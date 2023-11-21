@@ -7,16 +7,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <title>similar_document</title>
-    
+
     <style>
         label {
             font-size: 15pt;
             font-weight: bold;
-            padding-right: 1em;
+        }
+
+        #header * {
+            margin-right: 0.5em;
         }
 
         table {
             border-collapse: collapse;
+            margin-left: 10pt;
             width: 80%;
         }
 
@@ -26,79 +30,112 @@
             padding: 8px;
         }
 
-        .number,
-        .author,
-        .date {
-            width: 10%
+        #titleRow {
+            font-size: 17pt;
         }
 
-        .title {
-            width: 70%
+        #contentRow td {
+            line-height: 1.8;
+            padding-bottom: 100pt;
         }
 
-        #refresh {
+        #refresh, #home {
             cursor: pointer;
+        }
+
+        .borderRow {
+            border: 1px solid #202020;
         }
     </style>
 </head>
 
 <body>
-    <p>
-        <label>게시판</label><a id="refresh">🔄</a>
+    <p id="header">
+        <label>글 상세</label>
+        <a id="refresh">🔄</a>
+        <input id="search" type="text" placeholder="글 검색"></input>
+        <a id="home">메인으로</a>
     </p>
     <table id="mainTable">
         <thead>
             <tr></tr>
         </thead>
         <tbody>
-            <tr>
-                <td class="title">제목</td>
-                <td class="author">작성자</td>
-                <td class="date">날짜</td>
-            </tr>
-            <tr>
-                <td class="content">글내용</td>
-            </tr>
+            <!-- dynamically added -->
         </tbody>
     </table>
-
+    
+    <!-- util fucntions -->
+    <script src="common.js"></script>
+    
     <script>
+        // init
         document.addEventListener('DOMContentLoaded', function () {
-            var searchParams = new URLSearchParams(window.location.search);
-            var index = searchParams.get('index');
+            const searchParams = new URLSearchParams(window.location.search);
+            const index = searchParams.get('index');
 
             fetch('http://127.0.0.1:8000/sub?index=' + index)
                 .then(response => response.json())
-                .then(data => draw_sub(data))
+                .then(data => drawSub(data))
                 .catch(error => console.error(error));
 
             document.getElementById("refresh").addEventListener("click", function () {
-                window.location.href = "sub.html"
+                window.location.href = "sub.html?index=" + index
+            })
+
+            document.getElementById("search").addEventListener("keyup", function (event) {
+                if (event.target.value == "") return
+                if (event.key == "Enter") {
+                    goToSearch(event.target.value)
+                    searchInput.value = ""
+                }
+            })
+
+            document.getElementById("home").addEventListener("click", function() {
+                goToMain()
             })
         });
 
-        function draw_sub(data) {
+        // draw sub UI
+        function drawSub(data) {
             var table = document.getElementById("mainTable").getElementsByTagName('tbody')[0];
-            console.log(data)
-            // data.forEach(function (it) {
-            //     var newRow = table.insertRow();
-            //     index = it["item_idx"]
-            //     newRow.addEventListener("click", function(){
-            //         go_to_sub(index)
-            //     })
 
-            //     var cellTitle = newRow.insertCell(0);
-            //     var cellAuthor = newRow.insertCell(1);
-            //     var cellDate = newRow.insertCell(2);
+            var row1 = table.insertRow();
+            var cellHeader = row1.insertCell(0);
+            cellHeader.innerHTML = data["author"];
 
-            //     cellTitle.innerHTML = it["title"];
-            //     cellAuthor.innerHTML = it["author"];
-            //     cellDate.innerHTML = it["created_at"];
-            // })
+            var row2 = table.insertRow();
+            row2.id = "titleRow"
+            var cellTitle = row2.insertCell(0);
+            cellTitle.innerHTML = data["title"];
+
+            var row3 = table.insertRow();
+            row3.id = "contentRow"
+            var cellContent = row3.insertCell(0);
+            cellContent.innerHTML = data["contents"];
+
+            var row4 = table.insertRow();
+            row4.className = "borderRow"
+            var cellSimilarHeader = row4.insertCell(0);
+            cellSimilarHeader.innerHTML = "유사한 글 목록"
+
+            fetch('http://127.0.0.1:8000/similar?index='+data["item_idx"])
+                .then(response => response.json())
+                .then(data => draw_similar(data))
+                .catch(error => console.error(error));
+            
         }
 
-        function go_to_sub(index) {
-            window.location.href = "sub.html?index=" + index
+        // draw similar contents row
+        function draw_similar(data) {
+            var table = document.getElementById("mainTable").getElementsByTagName('tbody')[0];
+
+            data.forEach(function(it) {
+                var rows = table.insertRow();
+                rows.className = "borderRow"
+                var cell = rows.insertCell(0);
+                cell.innerHTML = "#" + it.item_idx + "  " + it.title
+            })
         }
     </script>
 </body>
