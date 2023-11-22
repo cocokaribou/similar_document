@@ -20,7 +20,8 @@
 
         table {
             border-collapse: collapse;
-            width: 70%;
+            margin-left: 10pt;
+            margin-right: 10pt;
         }
 
         th,
@@ -29,21 +30,18 @@
             padding: 8px;
         }
 
-        .number,
-        .author,
-        .date {
-            width: 10%
+        .number {
+            width: 10%;
+            color: gray;
         }
 
-        .title {
-            width: 70%
-        }
 
         #refresh,
         #home {
             cursor: pointer;
         }
-        .resultItem:hover {
+
+        .resultRow:hover {
             cursor: pointer;
             font-weight: bold;
             color: black;
@@ -51,21 +49,29 @@
 
         .highlight {
             background-color: yellow;
+            font-weight: bold;
         }
 
-        .centerRow td {
+        .centerRow {
             text-align: center;
             padding-top: 30pt;
             color: #202020;
         }
 
+        .centerRow * {
+            margin-left: 1.5pt;
+            margin-right: 1.5pt;
+        }
+
         .currPage {
             font-weight: bold;
+            color: black;
+            text-decoration: underline;
         }
 
         .page:hover {
             cursor: pointer;
-            font-weight: bold;
+            color: black;
         }
     </style>
 </head>
@@ -84,7 +90,52 @@
             </tr>
         </thead>
         <tbody>
-            <!-- dynamically added -->
+            <!-- add 10 rows in adavance -->
+            <tr class="resultRow 1">
+                <td></td>
+                <td></td>
+            </tr>
+            <tr class="resultRow 2">
+                <td></td>
+                <td></td>
+            </tr>
+            <tr class="resultRow 3">
+                <td></td>
+                <td></td>
+            </tr>
+            <tr class="resultRow 4">
+                <td></td>
+                <td></td>
+            </tr>
+            <tr class="resultRow 5">
+                <td></td>
+                <td></td>
+            </tr>
+            <tr class="resultRow 6">
+                <td></td>
+                <td></td>
+            </tr>
+            <tr class="resultRow 7">
+                <td></td>
+                <td></td>
+            </tr>
+            <tr class="resultRow 8">
+                <td></td>
+                <td></td>
+            </tr>
+            <tr class="resultRow 9">
+                <td></td>
+                <td></td>
+            </tr>
+            <tr class="resultRow 10">
+                <td></td>
+                <td></td>
+            </tr>
+
+            <!-- page navigator -->
+            <tr>
+                <td class="centerRow" colspan="2"></td>
+            </tr>
         </tbody>
     </table>
 
@@ -92,15 +143,16 @@
     <script src="common.js"></script>
 
     <script>
-        // init
         var query = ""
+        var page = 1
+        var maxPage = 1
+
+        // init
         document.addEventListener('DOMContentLoaded', function () {
             const searchParams = new URLSearchParams(window.location.search);
             query = searchParams.get('query');
-            var page = searchParams.get('page');
-            if (page == undefined) page = 1;
 
-            fetch('http://127.0.0.1:8000/search?query=' + query + "&page=" + page)
+            fetch('http://127.0.0.1:8000/search?query=' + query)
                 .then(response => response.json())
                 .then(data => drawSearch(data))
                 .catch(error => console.error(error));
@@ -121,72 +173,85 @@
             document.getElementById("home").addEventListener("click", function () {
                 goToMain()
             })
-
         });
 
-        // draw search UI
+
+        // draw search list UI
         function drawSearch(data) {
             const keyword = data["search_keyword"]
             var label = document.getElementById("result")
-            label.innerHTML = "\"" + keyword + "\" 검색 결과 : " + data["total"] + "개";
+            label.innerHTML = "\"" + keyword + "\" 검색 결과 " + data["total"] + "개";
 
             var table = document.getElementById("mainTable").getElementsByTagName('tbody')[0];
 
-            data["result_list"].forEach(function (it) {
-                var rows = table.insertRow();
-                rows.className = "resultItem"
-                rows.addEventListener("click", function() {
-                    goToSub(it["item_idx"])
-                })
-                var cell = rows.insertCell(0);
-
-                // highlight the search keyword
-                // var pattern = new RegExp('\\b' + keword + '\\b', 'gi');
-                // var text = it["title"].replace(pattern, '<span class="highlight">$1</span>');
-
-                cell.innerHTML = it["title"]
-            })
-
             if (data["total"] != 0) {
-                drawNavigator(data["current_page"], data["max_page"])
+                maxPage = data["max_page"]
+                drawNavigator(data["current_page"])
+            }
+
+            for (var i = 0; i <= 9; i++) {
+                var row = table.rows[i]
+                const cellData = data["result_list"][i]
+                row.addEventListener("click", function () {
+                    goToSub(cellData["item_idx"])
+                })
+
+                var cellNo = row.cells[0]
+                cellNo.className = "number"
+                cellNo.innerHTML = "#" + cellData["item_idx"]
+
+                var cellTitle = row.cells[1]
+                // highlight the search keyword
+                const pattern = new RegExp("(" + keyword + ")", 'gu')
+                const text = cellData["title"].replace(pattern, '<span class="highlight">$1</span>');
+                cellTitle.innerHTML = text
             }
         }
 
+
         // draw navigator UI
-        function drawNavigator(currPage, maxPage) {
+        function drawNavigator(currPage) {
             var table = document.getElementById("mainTable").getElementsByTagName('tbody')[0];
 
-            var row = table.insertRow();
-            row.className = "centerRow"
-            var cell = row.insertCell(0);
+            // init
+            var cell = table.rows[10].cells[0];
+            cell.innerHTML = ""
 
-            var startPage = currPage > 10 ? (parseInt(currPage / 10))* 10 : 1
+            var startPage = currPage > 10 ? (parseInt(currPage / 10)) * 10 : 1
             var lastPage = startPage + 10
             if (lastPage > maxPage) lastPage = maxPage + 1
 
             // previous page
             if (startPage != 1) {
                 var prev = document.createElement("a");
-                prev.innerHTML = "<    "
+                prev.innerHTML = "◀&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
                 prev.className = "page"
-                prev.onclick = function() {
+                prev.onclick = function () {
                     var prevPage = parseInt(currPage / 10) * 10 - 10
                     if (prevPage < 10) prevPage = 1
-                    
+
                     paging(parseInt(prevPage))
                 }
+                var start = document.createElement("a");
+                start.className = "page"
+                start.innerHTML = "<<&nbsp;&nbsp;&nbsp;&nbsp;"
+                start.onclick = function () {
+                    paging(1)
+                }
+
+                cell.append(start)
                 cell.append(prev)
             }
 
             // page navigator
             for (var i = startPage; i < lastPage; i++) {
-                // highlight current page
-                pageStr = parseInt(i) == parseInt(currPage) ? "<span class='currPage'>" + i + " </span>" : i + " "
-
                 var link = document.createElement("a");
+
+                // highlight current page
+                var pageStr = parseInt(i) == parseInt(currPage) ? "<span class='currPage'>" + i + "</span" : i
                 link.innerHTML = pageStr
                 link.className = "page"
-                link.onclick = function(event) {
+                link.onclick = function (event) {
                     paging(parseInt(event.target.innerHTML))
                 }
                 cell.append(link)
@@ -195,32 +260,32 @@
             // next page 
             if (lastPage <= maxPage) {
                 var next = document.createElement("a");
-                next.innerHTML = "    >"
+                next.innerHTML = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;▶"
                 next.className = "page"
-                next.onclick = function(event) {
+                next.onclick = function (event) {
                     var nextPage = parseInt(currPage / 10) * 10 + 10
+
+                    if (currPage < 10) nextPage = 20
                     paging(nextPage)
                 }
+                var last = document.createElement("a");
+                last.className = "page"
+                last.innerHTML = "&nbsp;&nbsp;&nbsp;&nbsp;>>"
+                last.onclick = function () {
+                    paging(maxPage)
+                }
+
                 cell.append(next)
+                cell.append(last)
             }
         }
 
         // pagination
         function paging(newPage) {
-            // 1. redirect the page to change the query parameter of the link
-            goToSearch(query, newPage)
-
-            // 2. call api only without having to redirect
-
-            // var table = document.getElementById("mainTable")
-            // while (table.rows.length > 0) {
-            //     table.deleteRow(0);
-            // }
-
-            // fetch('http://127.0.0.1:8000/search?query=' + query + "&page=" + newPage)
-            //     .then(response => response.json())
-            //     .then(data => drawSearch(data))
-                // .catch(error => console.error(error));
+            fetch('http://127.0.0.1:8000/search?query=' + query + "&page=" + newPage)
+                .then(response => response.json())
+                .then(data => drawSearch(data))
+                .catch(error => console.error(error));
         }
     </script>
 </body>

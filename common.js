@@ -9,9 +9,6 @@ function goToSub(index) {
 }
 
 // redirect to search result
-function goToSearch(keyword, page=-1) {
-    var link = "search.html?query=" + keyword
-    if (page != -1) link += "&page=" + page
-
-    window.location.href = link
+function goToSearch(keyword) {
+    window.location.href = "search.html?query=" + keyword
 }

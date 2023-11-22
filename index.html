@@ -29,10 +29,9 @@
             padding: 8px;
         }
 
-        .number,
-        .author,
-        .date {
-            width: 10%
+        .number {
+            width: 10%;
+            color:gray;
         }
 
         .title {
@@ -43,7 +42,7 @@
             cursor: pointer;
         }
 
-        .item :hover {
+        .item:hover {
             cursor: pointer;
             font-weight: bold;
             color: black;
@@ -79,14 +78,12 @@
                 .then(data => drawMain(data))
                 .catch(error => console.error(error));
 
-            const searchInput = document.getElementById("search")
-            const refresh = document.getElementById("refresh")
 
-            refresh.addEventListener("click", function () {
+            document.getElementById("refresh").addEventListener("click", function () {
                 goToMain()
             })
 
-            searchInput.addEventListener("keyup", function (event) {
+            document.getElementById("search").addEventListener("keyup", function (event) {
                 if (event.target.value == "") return
                 if (event.key == "Enter") {
                     goToSearch(event.target.value)
@@ -101,15 +98,18 @@
 
             data.forEach(function (it) {
                 var newRow = table.insertRow();
-                newRow.class = "item"
+                newRow.className = "item"
                 newRow.addEventListener("click", function () {
                     goToSub(it["item_idx"])
                 })
 
-                var cellTitle = newRow.insertCell(0);
-                var cellAuthor = newRow.insertCell(1);
-                var cellDate = newRow.insertCell(2);
+                var cellNo = newRow.insertCell(0);
+                cellNo.className = "number"
+                var cellTitle = newRow.insertCell(1);
+                var cellAuthor = newRow.insertCell(2);
+                var cellDate = newRow.insertCell(3);
 
+                cellNo.innerHTML = "#" + it["item_idx"]
                 cellTitle.innerHTML = it["title"];
                 cellAuthor.innerHTML = it["author"];
                 cellDate.innerHTML = it["created_at"];
