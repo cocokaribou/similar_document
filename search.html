@@ -79,7 +79,6 @@
 <body>
     <p id="header">
         <label id="result"></label>
-        <a id="refresh">🔄</a>
         <input id="search" type="text" placeholder="글 검색"></input>
         <a id="home">메인으로</a>
     </p>
@@ -164,10 +163,6 @@
                     goToSearch(event.target.value)
                     searchInput.value = ""
                 }
-            })
-
-            document.getElementById("refresh").addEventListener("click", function () {
-                goToSearch(query)
             })
 
             document.getElementById("home").addEventListener("click", function () {

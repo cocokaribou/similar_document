@@ -3,11 +3,9 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from models import Item, SearchResult
 
-from es import EsModule
+from es import es
 
-# def
 app = FastAPI()
-es = EsModule()
 
 app.add_middleware(
     CORSMiddleware,
@@ -61,3 +59,9 @@ async def get_similar_contents(index: int):
 @app.get("/search", response_model=SearchResult)
 async def get_search_result(query: str, page: int = 1):
     return es.search_content_by_keyword(query, page)
+
+@app.get("/test")
+async def get_test():
+    # return es.get_contents_by_index_list([541956, 359414, 60727, 326673, 31458, 26148, 11629, 10412])
+    # return es.get_mappings()
+    return es.get_vector_by_index(471738)

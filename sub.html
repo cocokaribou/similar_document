@@ -51,7 +51,6 @@
 
 <body>
     <p id="header">
-        <a id="refresh">🔄</a>
         <input id="search" type="text" placeholder="글 검색"></input>
         <a id="home">메인으로</a>
     </p>
@@ -60,7 +59,6 @@
             <tr></tr>
         </thead>
         <tbody>
-            <!-- dynamically added -->
         </tbody>
     </table>
     
@@ -78,9 +76,11 @@
                 .then(data => drawSub(data))
                 .catch(error => console.error(error));
 
-            document.getElementById("refresh").addEventListener("click", function () {
-                window.location.href = "sub.html?index=" + index
-            })
+            fetch('http://127.0.0.1:8000/similar?index=' + index)
+                .then(response => response.json())
+                .then(data => drawSimilar(data))
+                .catch(error => console.error(error));
+            
 
             document.getElementById("search").addEventListener("keyup", function (event) {
                 if (event.target.value == "") return
@@ -116,21 +116,15 @@
             var row4 = table.insertRow();
             row4.className = "borderRow"
             var cellSimilarHeader = row4.insertCell(0);
-            cellSimilarHeader.innerHTML = "유사한 글 목록"
-
-            fetch('http://127.0.0.1:8000/similar?index='+data["item_idx"])
-                .then(response => response.json())
-                .then(data => draw_similar(data))
-                .catch(error => console.error(error));
-            
+            cellSimilarHeader.innerHTML = "이런 글은 어떠세요?"
         }
 
         // draw similar contents row
-        function draw_similar(data) {
+        function drawSimilar(data) {
             var table = document.getElementById("mainTable").getElementsByTagName('tbody')[0];
 
             data.forEach(function(it) {
-                var rows = table.insertRow();
+                var rows = table.insertRow(4);
                 rows.className = "borderRow"
                 var cell = rows.insertCell(0);
                 cell.innerHTML = "#" + it.item_idx + "  " + it.title
