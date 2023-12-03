@@ -186,7 +186,12 @@
 
             for (var i = 0; i <= 9; i++) {
                 var row = table.rows[i]
+                row.cells[0].innerHTML = ""
+                row.cells[1].innerHTML = ""
+
                 const cellData = data["result_list"][i]
+                if (cellData == null) continue
+
                 row.addEventListener("click", function () {
                     goToSub(cellData["item_idx"])
                 })
@@ -212,9 +217,10 @@
             var cell = table.rows[10].cells[0];
             cell.innerHTML = ""
 
-            var startPage = currPage > 10 ? (parseInt(currPage / 10)) * 10 : 1
-            var lastPage = startPage + 10
-            if (lastPage > maxPage) lastPage = maxPage + 1
+            var startPage = currPage > 9 ? (parseInt(currPage / 10)) * 10 : 1
+            var lastPage = startPage + 9
+            if (startPage == 1) lastPage = 9
+            if (lastPage > maxPage) lastPage = maxPage
 
             // previous page
             if (startPage != 1) {
@@ -239,7 +245,7 @@
             }
 
             // page navigator
-            for (var i = startPage; i < lastPage; i++) {
+            for (var i = startPage; i <= lastPage; i++) {
                 var link = document.createElement("a");
 
                 // highlight current page
@@ -252,15 +258,15 @@
                 cell.append(link)
             }
 
-            // next page 
-            if (lastPage <= maxPage) {
+            // next page
+            if (lastPage != maxPage) {
                 var next = document.createElement("a");
                 next.innerHTML = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;▶"
                 next.className = "page"
                 next.onclick = function (event) {
                     var nextPage = parseInt(currPage / 10) * 10 + 10
 
-                    if (currPage < 10) nextPage = 20
+                    if (currPage < 10) nextPage = 10
                     paging(nextPage)
                 }
                 var last = document.createElement("a");

@@ -32,7 +32,7 @@ async def get_main():
     return es.get_random_contents_by_20()
 
 
-# TODO 2. 메인 - 추천글 10개
+# TODO 2. 메인 - 추천글 10개 factorization machine
 @app.get("/recom", response_model=list[Item])
 async def get_recommended_contents ():
     return []
@@ -44,7 +44,7 @@ async def get_sub(index: int):
     return es.get_content_by_index(index)
 
 
-# TODO 4. 서브 - 유사한 글 5개 리스팅
+# 4. 서브 - 유사한 글 5개 리스팅
 @app.get("/similar", response_model=list[Item])
 async def get_similar_contents(index: int):
     return [
