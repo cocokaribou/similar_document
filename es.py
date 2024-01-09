@@ -182,4 +182,36 @@ class EsModule:
             "result_list": result_list
         }
 
+    # 입력 수대로 document list 가져오기
+    def get_contents_by_count(self, count: int):
+        search_query = {
+            "size": count,
+            "query": {
+                "match_all": {}
+            }
+        }
+
+        result = self.es.search(index="dschool", body=search_query)
+        return [hit['_source']['contents'] for hit in result['hits']['hits']]
+
+    # scroll api로 모든 도큐멘트 가져오기
+    def get_every_contents(self):
+        scroll_query = {
+            "query": {
+                "match_all": {}
+            }
+        }
+
+        result = self.es.search(index="dschool", scroll='2m', size=10000, body=scroll_query)
+        scroll_id = result['_scroll_id']
+
+        all_contents = []
+
+        while len(result['hits']['hits']) > 0:
+            print("되고있는가")
+            all_contents.extend([hit['_source']['contents'] for hit in result['hits']['hits']])
+            result = self.es.scroll(scroll_id=scroll_id, scroll='2m')
+
+        return all_contents
+
 es = EsModule()
