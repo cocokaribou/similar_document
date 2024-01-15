@@ -128,6 +128,9 @@
                 rows.className = "borderRow"
                 var cell = rows.insertCell(0);
                 cell.innerHTML = "#" + it.item_idx + "  " + it.title
+                rows.addEventListener("click", function () {
+                    goToSub(it["item_idx"])
+                })
             })
         }
     </script>

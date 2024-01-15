@@ -1,4 +1,5 @@
 from elasticsearch import Elasticsearch
+
 from config import HOST, PORT, USER, PW, INDEX
 
 from math import ceil
@@ -59,7 +60,6 @@ class EsModule:
 
         return result_list
 
-
     # 글 번호로 글 내용 가져오기
     def get_content_by_index(self, index: int):
         query_dsl = {
@@ -111,11 +111,32 @@ class EsModule:
 
     # 유사한 글 가져오기
     def get_similar_contents(self, index: int):
-        return {}
+        input_vector = self.get_vector_by_index(index)
+        body = {
+            "size": 5,
+            "query": {
+                "script_score": {
+                    "query": {
+                        "exists": {
+                            "field": "vec"
+                        }
+                    },
+                    "script": {
+                        "source": "cosineSimilarity(params.query_vector, 'vec') + 1.0",
+                        "params": {"query_vector": input_vector}
+                    }
+                }
+            }
+        }
+
+        filter_path = "hits.hits._source.subject,hits.hits._source.item_idx,hits.hits._score"
+
+        response = es.search(index=index_name, body=body, filter_path=filter_path)
+
+        return { }
         
     # 글 벡터 가져오기
     def get_vector_by_index(self, index: int):
-        print(f"what! {index}")
         query_dsl = {
             "term": {
                 "item_idx": index
@@ -127,11 +148,11 @@ class EsModule:
         if not result['took']:
             return {}
 
-        source = result['hits']['hits'][0]['_source']['d2v_vector']
+        vector_arr = result['hits']['hits'][0]['_source']["vec"]
 
-        return source
+        return vector_arr
 
-    # 벡터로 cos_similarity 검색하기
+    # id로 cos_similarity 검색하기
     def cos_similarity(self, vector):
         return {}
 

@@ -24,7 +24,6 @@ if __name__ == "__main__":
     # korean word tokenizer
     okt = Okt()
 
-    # 10000개만 먼저 훈련
     documents = es.get_every_contents()
 
     # tagged data

@@ -47,12 +47,8 @@ async def get_sub(index: int):
 # 4. 서브 - 유사한 글 5개 리스팅
 @app.get("/similar", response_model=list[Item])
 async def get_similar_contents(index: int):
-    return [
-        Item(item_idx=0, title="yo"),
-        Item(item_idx=1, title="yo"),
-        Item(item_idx=2, title="yo"),
-        Item(item_idx=3, title="yo"),
-    ]
+    print(index)
+    return es.get_contents_by_index_list([4561, 5684, 7408, 8194])
 
 
 # 5. 검색 결과 화면
@@ -61,7 +57,7 @@ async def get_search_result(query: str, page: int = 1):
     return es.search_content_by_keyword(query, page)
 
 @app.get("/test")
-async def get_test():
+async def get_test(index: int):
     # return es.get_contents_by_index_list([541956, 359414, 60727, 326673, 31458, 26148, 11629, 10412])
     # return es.get_mappings()
-    return es.get_vector_by_index(471738)
+    return es.get_vector_by_index(index)
