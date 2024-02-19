@@ -24,12 +24,14 @@ if __name__ == "__main__":
     # korean word tokenizer
     kkm = Kkma()
 
-    documents = es.get_contents_over_500_words()
+    documents = es.get_preprocessed_contents()
 
     # tagged data
     tagged_data = [TaggedDocument(words=kkm.morphs(doc), tags=[idx]) for idx, doc in enumerate(documents)]
+    tagged_data = [x for x in tagged_data if not x == "학원"]
 
-    # # Doc2Vec 모델 생성 및 훈련
+    print(tagged_data[0])
+    # Doc2Vec 모델 생성 및 훈련
     model = Doc2Vec(vector_size=50, window=2, min_count=1, dm=1, workers=4)
     model.build_vocab(tagged_data)
     model.random.seed(0)

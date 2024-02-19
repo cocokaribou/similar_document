@@ -17,7 +17,7 @@ if __name__ == "__main__":
             "bool": {
                 "filter": {
                     "script": {
-                        "script": "doc['contents'].size() > 300"
+                        "script": "doc['contents'].size() >= 150 && doc['contents'].size() <= 500"
                     }
                 }
             }
@@ -33,6 +33,7 @@ if __name__ == "__main__":
     for doc in docs:
         text = doc["_source"]["contents"]
         tokens = kkm.morphs(text)
+        tokens = [x for x in tokens if not x == "학원"]
         vector = model.infer_vector(tokens)
         es.update(index="dschool", id=doc["_id"], body={"doc": {"vec": vector}})
 

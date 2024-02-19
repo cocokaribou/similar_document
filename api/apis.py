@@ -32,10 +32,10 @@ async def get_main():
     return es.get_random_contents_by_20()
 
 
-# TODO 2. 메인 - 추천글 10개 factorization machine
-@app.get("/recom", response_model=list[Item])
-async def get_recommended_contents ():
-    return []
+# # TODO 2. 메인 - 추천글 10개 factorization machine
+# @app.get("/recom", response_model=list[Item])
+# async def get_recommended_contents ():
+#     return []
 
 
 # 3. 서브 - 인덱스로 글 정보 가져오기
@@ -45,10 +45,9 @@ async def get_sub(index: int):
 
 
 # 4. 서브 - 유사한 글 5개 리스팅
-@app.get("/similar", response_model=list[Item])
+@app.get("/similar")
 async def get_similar_contents(index: int):
-    print(index)
-    return es.get_contents_by_index_list([4561, 5684, 7408, 8194])
+    return es.get_similar_contents(index)
 
 
 # 5. 검색 결과 화면
@@ -64,4 +63,4 @@ async def get_test(index: int):
 
 @app.get("/all")
 async def get_all_docs():
-    return len(es.get_contents_over_500_words())
+    return len(es.get_preprocessed_contents())

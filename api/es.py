@@ -109,6 +109,9 @@ class EsModule:
     # 유사한 글 가져오기
     def get_similar_contents(self, index: int):
         input_vector = self.get_vector_by_index(index)
+        if not input_vector:
+            return []
+
         body = {
             "size": 5,
             "query": {
@@ -128,9 +131,18 @@ class EsModule:
 
         filter_path = "hits.hits._source.subject,hits.hits._source.item_idx,hits.hits._score"
 
-        response = es.search(index=index_name, body=body, filter_path=filter_path)
+        result = self.es.search(index=INDEX, body=body, filter_path=filter_path)
 
-        return {}
+        result_list = []
+        for hit in result['hits']['hits']:
+            source = hit['_source']
+            result_map = {
+                "item_idx": source['item_idx'],
+                "title": source['subject'],
+            }
+            result_list.append(result_map)
+
+        return result_list
 
     # 글 벡터 가져오기
     def get_vector_by_index(self, index: int):
@@ -148,10 +160,6 @@ class EsModule:
         vector_arr = result['hits']['hits'][0]['_source']["vec"]
 
         return vector_arr
-
-    # id로 cos_similarity 검색하기
-    def cos_similarity(self, vector):
-        return {}
 
     # 키워드 검색결과 가져오기, 10개씩 paging
     def search_content_by_keyword(self, keyword: str, page: int):
@@ -230,13 +238,13 @@ class EsModule:
 
         return all_contents
 
-    def get_contents_over_500_words (self):
+    def get_preprocessed_contents(self):
         scroll_query = {
             "query": {
                 "bool": {
                     "filter": {
                         "script": {
-                            "script": "doc['contents'].size() > 300"
+                            "script": "doc['contents'].size() >= 150 && doc['contents'].size() <= 500"
                         }
                     }
                 }
