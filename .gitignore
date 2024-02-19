@@ -1,7 +1,9 @@
-config.py
+api/config.py
 .idea/*
 __pycache__/*
 .vscode/*
 *.save
 *.csv
 models/__pycache__/*
+api/__pycache__/*
+fe/__pycache__/*

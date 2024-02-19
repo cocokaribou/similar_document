@@ -61,3 +61,7 @@ async def get_test(index: int):
     # return es.get_contents_by_index_list([541956, 359414, 60727, 326673, 31458, 26148, 11629, 10412])
     # return es.get_mappings()
     return es.get_vector_by_index(index)
+
+@app.get("/all")
+async def get_all_docs():
+    return len(es.get_contents_over_500_words())

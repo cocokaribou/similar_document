@@ -1,5 +1,3 @@
-from elasticsearch import Elasticsearch
-
 from konlpy.tag import Okt
 from gensim.models import Doc2Vec
 

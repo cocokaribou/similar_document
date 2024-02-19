@@ -6,6 +6,7 @@ from math import ceil
 
 PAGING_OFFSET = 10
 
+
 class EsModule:
     _instance = None
 
@@ -26,12 +27,10 @@ class EsModule:
         result = self.es.count(index=INDEX)
         return result['count']
 
-
     # 인덱스의 매핑 가져오기
     def get_mappings(self):
         result = self.es.indices.get_mapping(index=INDEX)
         return result
-
 
     # 글 20개 랜덤하게 가져오기
     def get_random_contents_by_20(self):
@@ -84,7 +83,6 @@ class EsModule:
             "created_at": source.get('created_at'),
         }
 
-
     # 여러개 글 한꺼번에 가져오기
     def get_contents_by_index_list(self, indexes: list[int]):
         query_dsl = {
@@ -102,12 +100,11 @@ class EsModule:
 
         # TODO 입력된 인덱스 순서대로 출력
         return [{
-            "item_idx": doc['_source']['item_idx'], 
+            "item_idx": doc['_source']['item_idx'],
             "author": doc['_source']['author_nick'],
-            "title" : doc['_source']['subject'],
+            "title": doc['_source']['subject'],
             "contents": doc['_source']['contents']
-            } for doc in matching_documents]
-    
+        } for doc in matching_documents]
 
     # 유사한 글 가져오기
     def get_similar_contents(self, index: int):
@@ -133,8 +130,8 @@ class EsModule:
 
         response = es.search(index=index_name, body=body, filter_path=filter_path)
 
-        return { }
-        
+        return {}
+
     # 글 벡터 가져오기
     def get_vector_by_index(self, index: int):
         query_dsl = {
@@ -155,7 +152,6 @@ class EsModule:
     # id로 cos_similarity 검색하기
     def cos_similarity(self, vector):
         return {}
-
 
     # 키워드 검색결과 가져오기, 10개씩 paging
     def search_content_by_keyword(self, keyword: str, page: int):
@@ -216,7 +212,7 @@ class EsModule:
         return [hit['_source']['contents'] for hit in result['hits']['hits']]
 
     # scroll api로 모든 도큐멘트 가져오기
-    def get_every_contents(self):
+    def get_every_content(self):
         scroll_query = {
             "query": {
                 "match_all": {}
@@ -229,10 +225,34 @@ class EsModule:
         all_contents = []
 
         while len(result['hits']['hits']) > 0:
-            print("되고있는가")
             all_contents.extend([hit['_source']['contents'] for hit in result['hits']['hits']])
             result = self.es.scroll(scroll_id=scroll_id, scroll='2m')
 
         return all_contents
+
+    def get_contents_over_500_words (self):
+        scroll_query = {
+            "query": {
+                "bool": {
+                    "filter": {
+                        "script": {
+                            "script": "doc['contents'].size() > 300"
+                        }
+                    }
+                }
+            }
+        }
+
+        result = self.es.search(index="dschool", scroll='2m', size=10000, body=scroll_query)
+        scroll_id = result['_scroll_id']
+
+        result_contents = []
+
+        while len(result['hits']['hits']) > 0:
+            result_contents.extend([hit['_source']['contents'] for hit in result['hits']['hits']])
+            result = self.es.scroll(scroll_id=scroll_id, scroll='2m')
+
+        return result_contents
+
 
 es = EsModule()
