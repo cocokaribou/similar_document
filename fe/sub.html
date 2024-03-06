@@ -39,7 +39,8 @@
             padding-bottom: 100pt;
         }
 
-        #refresh, #home {
+        #refresh,
+        #home {
             cursor: pointer;
         }
 
@@ -63,26 +64,27 @@
     </table>
     <br>
     <br>
-    
+
     <!-- util fucntions -->
     <script src="common.js"></script>
-    
+
     <script>
         // init
         document.addEventListener('DOMContentLoaded', function () {
             const searchParams = new URLSearchParams(window.location.search);
             const index = searchParams.get('index');
 
-            fetch('http://127.0.0.1:8000/sub?index=' + index)
-                .then(response => response.json())
-                .then(data => drawSub(data))
+            Promise.all([
+                fetch('http://127.0.0.1:8000/sub?index=' + index)
+                    .then(response => response.json()),
+                fetch('http://127.0.0.1:8000/similar?index=' + index)
+                    .then(response => response.json())
+            ])
+                .then(([subData, similarData]) => {
+                    drawSub(subData);
+                    drawSimilar(similarData);
+                })
                 .catch(error => console.error(error));
-
-            fetch('http://127.0.0.1:8000/similar?index=' + index)
-                .then(response => response.json())
-                .then(data => drawSimilar(data))
-                .catch(error => console.error(error));
-            
 
             document.getElementById("search").addEventListener("keyup", function (event) {
                 if (event.target.value == "") return
@@ -90,11 +92,11 @@
                     goToSearch(event.target.value)
                     searchInput.value = ""
                 }
-            })
+            });
 
-            document.getElementById("home").addEventListener("click", function() {
+            document.getElementById("home").addEventListener("click", function () {
                 goToMain()
-            })
+            });
         });
 
         // draw sub UI
@@ -125,7 +127,7 @@
         function drawSimilar(data) {
             var table = document.getElementById("mainTable").getElementsByTagName('tbody')[0];
 
-            data.forEach(function(it) {
+            data.forEach(function (it) {
                 var rows = table.insertRow(4);
                 rows.className = "borderRow"
                 var cell = rows.insertCell(0);

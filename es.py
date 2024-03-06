@@ -129,13 +129,15 @@ class EsModule:
             }
         }
 
-        filter_path = "hits.hits._source.subject,hits.hits._source.item_idx,hits.hits._score"
+        # filter_path = "hits.hits._source.subject,hits.hits._source.item_idx,hits.hits._score"
 
-        result = self.es.search(index=INDEX, body=body, filter_path=filter_path)
+        result = self.es.search(index=INDEX, body=body)
+
 
         result_list = []
         for hit in result['hits']['hits']:
             source = hit['_source']
+            print(source)
             result_map = {
                 "item_idx": source['item_idx'],
                 "title": source['subject'],

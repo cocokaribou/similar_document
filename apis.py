@@ -1,5 +1,5 @@
 # def add_documents()
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from models import Item, SearchResult
 
